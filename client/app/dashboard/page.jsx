@@ -118,7 +118,7 @@ const page = () => {
                                     />
                                     <div className="ms-3">
                                       <h6 className="mb-0 fw-bolder">
-                                        {log.Task.User.name}
+                                        {/* {log.Task.User.name} */}
                                       </h6>
                                     </div>
                                   </div>

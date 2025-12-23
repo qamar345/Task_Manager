@@ -2,12 +2,14 @@
 
 import { Navbar } from "@/components/Navbar";
 import Siderbar from "@/components/Siderbar";
-import EditTasK from "@/components/TaskModal";
+import EditTasK from "@/components/EditTask";
 import api from "@/utils/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const page = () => {
+  const [open, setOpen] = useState(false);
+
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -72,6 +74,12 @@ const page = () => {
       alert("Failed to delete task.");
     }
   };
+
+  // const submitHandler = (id) => {
+  //   setTaskId(id);
+  //   setOpen(false);
+  // };
+
   return (
     <>
       {/* <!--  Body Wrapper --> */}
@@ -239,9 +247,10 @@ const page = () => {
                                     <button
                                       type="button"
                                       className="btn btn-warning"
-                                      data-bs-toggle="modal"
-                                      data-bs-target="#editTask"
-                                      onClick={() => setTaskId(ta.id)}
+                                      onClick={() => {
+                                        setOpen(true);
+                                        setTaskId(ta.id);
+                                      }}
                                     >
                                       Edit Task
                                     </button>
@@ -255,7 +264,11 @@ const page = () => {
                                       Delete Task
                                     </button>
                                   </div>
-                                  <EditTasK taskId={taskId} />
+                                  <EditTasK
+                                    taskId={taskId}
+                                    isOpen={open}
+                                    onClose={() => setOpen(false)}
+                                  />
                                 </td>
                               </tr>
                             ))}

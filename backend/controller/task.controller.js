@@ -71,10 +71,19 @@ const getTasks = async (req, res) => {
   }
 };
 
-const getSingleTask = (req, res) => {
+const getSingleTask = async (req, res) => {
   const { id } = req.params;
 
-  console.log(id);
+  try {
+    const task = await Task.findOne({
+      where: {
+        id: id,
+      },
+    });
+    res.json(task);
+  } catch (error) {
+    res.json(error);
+  }
 };
 
 // Update Task
@@ -90,12 +99,12 @@ const updateTask = async (req, res) => {
 
   // Log update
   await ActivityLog.create({
-    taskId: task.id,
-    userId,
+    task_id: task.id,
+    user_id: userId,
     action: "Task updated",
   });
 
-  res.json(task);
+  res.json({ message: "Task Updated Successfuly" });
 };
 
 // Delete Task

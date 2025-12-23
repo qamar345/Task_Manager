@@ -22,6 +22,8 @@ const page = () => {
       try {
         const response = await api.get("/tasks/logs");
         setLogs(response.data);
+
+        console.log(response)
       } catch (error) {
         console.log(error);
       }
@@ -29,6 +31,7 @@ const page = () => {
 
     GetLogs();
   }, []);
+
   return (
     <>
       <div
@@ -117,7 +120,7 @@ const page = () => {
                                     />
                                     <div className="ms-3">
                                       <h6 className="mb-0 fw-bolder">
-                                        {log.Task.User.name}
+                                        {/* {log.Task.User.email} */}
                                       </h6>
                                     </div>
                                   </div>
