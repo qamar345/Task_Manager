@@ -10,23 +10,26 @@ import { useRouter } from "next/navigation";
 
 const page = () => {
   const { workspaceId } = useWorkspace();
+  const [role, setRole] = useState(null);
   const [projects, setPorjects] = useState([]);
   const [projectId, setProjectId] = useState(null);
   const [workspaceIdState, setWorkspaceIdState] = useState(null);
-   const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
-      const router = useRouter();
-    
-      useEffect(() => {
-        if (!token) {
-          router.push("/");
-        }
-      })
+  const token =
+    typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!token) {
+      router.push("/");
+    }
+  });
 
   useEffect(() => {
     const getProjects = async () => {
       try {
         const response = await api.get(`/projects/?workspaceId=${workspaceId}`);
-        setPorjects(response.data);
+        setPorjects(response.data.projects);
+        setRole(response.data.role);
       } catch (error) {
         console.log(error);
       }
@@ -93,12 +96,14 @@ const page = () => {
                               <th scope="col" className="px-0 text-muted">
                                 Created At
                               </th>
-                              <th
-                                scope="col"
-                                className="px-0 text-muted text-center"
-                              >
-                                Action
-                              </th>
+                              {role === "admin" && (
+                                <th
+                                  scope="col"
+                                  className="px-0 text-muted text-center"
+                                >
+                                  Action
+                                </th>
+                              )}
                             </tr>
                           </thead>
                           <tbody>
@@ -117,26 +122,31 @@ const page = () => {
                                 <td className="px-0">
                                   {new Date(pr.created_at).toLocaleDateString()}
                                 </td>
-                                <td className="px-0">
-                                  <div className="ms-auto mt-3 mt-md-0 text-center">
-                                    <button
-                                      type="button"
-                                      className="btn btn-warning"
-                                      data-bs-toggle="modal"
-                                      data-bs-target="#taskModal"
-                                      onClick={() => {
-                                        setProjectId(pr.id),
-                                          setWorkspaceIdState(pr.workspace_id);
-                                      }}
-                                    >
-                                      Create Task
-                                    </button>
-                                  </div>
-                                  <TaskModal
-                                    pId={projectId}
-                                    wId={workspaceIdState}
-                                  />
-                                </td>
+
+                                {role === "admin" && (
+                                  <td className="px-0">
+                                    <div className="ms-auto mt-3 mt-md-0 text-center">
+                                      <button
+                                        type="button"
+                                        className="btn btn-warning"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#taskModal"
+                                        onClick={() => {
+                                          setProjectId(pr.id),
+                                            setWorkspaceIdState(
+                                              pr.workspace_id
+                                            );
+                                        }}
+                                      >
+                                        Create Task
+                                      </button>
+                                    </div>
+                                    <TaskModal
+                                      pId={projectId}
+                                      wId={workspaceIdState}
+                                    />
+                                  </td>
+                                )}
                               </tr>
                             ))}
                           </tbody>

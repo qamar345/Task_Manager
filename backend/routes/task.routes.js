@@ -8,6 +8,7 @@ const {
   updateTask,
   GetTasksUser,
   getSingleTask,
+  getAdminTasks,
 } = require("../controller/task.controller");
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.delete("/:id", Auth, deleteTask);
 router.get("/logs", Auth, getTaskLogs);
 router.get("/get-tasks", Auth, GetTasksUser);
 router.get("/:id", Auth, getSingleTask);
+router.get("/admin-tasks/:workspaceId", Auth, getAdminTasks);
 
 module.exports = router;

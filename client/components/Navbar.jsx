@@ -1,3 +1,4 @@
+"use client"; // Add at top of file
 import { useRouter } from "next/navigation";
 import React from "react";
 

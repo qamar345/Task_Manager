@@ -1,3 +1,5 @@
+"use client"; // Add at top of file
+
 import Link from "next/link";
 import React from "react";
 
@@ -26,7 +28,7 @@ const Siderbar = () => {
                 {/* <iconify-icon icon="solar:menu-dots-linear" className="nav-small-cap-icon fs-4"></iconify-icon> */}
                 <span className="hide-menu">Home</span>
               </li>
-              <li className="sidebar-item">
+              {/* <li className="sidebar-item">
                 <Link
                   className="sidebar-link"
                   href="/dashboard"
@@ -35,21 +37,21 @@ const Siderbar = () => {
                   <i className="ti ti-atom"></i>
                   <span className="hide-menu">Dashboard</span>
                 </Link>
-              </li>
+              </li> */}
               {/* <!-- ---------------------------------- -->
             <!-- Dashboard -->
             <!-- ---------------------------------- --> */}
               <li className="sidebar-item">
                 <Link
                   className="sidebar-link justify-content-between"
-                  href="/workspaces"
+                  href="/dashboard"
                   aria-expanded="false"
                 >
                   <div className="d-flex align-items-center gap-3">
                     <span className="d-flex">
                       <i className="ti ti-aperture"></i>
                     </span>
-                    <span className="hide-menu">Workspaces</span>
+                    <span className="hide-menu">Dashboard</span>
                   </div>
                 </Link>
               </li>

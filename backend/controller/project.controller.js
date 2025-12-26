@@ -37,7 +37,7 @@ const getProjectsByWorkspace = async (req, res) => {
   const projects = await Project.findAll({
     where: { workspace_id: workspaceId },
   });
-  res.json(projects);
+  res.json({ projects: projects, role: member.role });
 };
 
 const GetProjects = async (req, res) => {
@@ -52,5 +52,5 @@ const GetProjects = async (req, res) => {
 module.exports = {
   createProject,
   getProjectsByWorkspace,
-  GetProjects
+  GetProjects,
 };

@@ -9,12 +9,13 @@ import { useEffect, useState } from "react";
 
 const page = () => {
   const [open, setOpen] = useState(false);
+  const [role, setRole] = useState(null);
 
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [projects, setProjects] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
-  const [assignedUserFilter, setAssignedUserFilter] = useState("");
+  // const [assignedUserFilter, setAssignedUserFilter] = useState("");
   const [projectFilter, setProjectFilter] = useState("");
   const [taskId, setTaskId] = useState(null);
   const token =
@@ -54,16 +55,17 @@ const page = () => {
     const getTasks = async () => {
       try {
         const response = await api.get(
-          `/tasks/?projectId=${projectFilter}&status=${statusFilter}&assignedTo=${assignedUserFilter}`
+          `/tasks/?projectId=${projectFilter}&status=${statusFilter}`
         );
-        setTasks(response.data);
+        setTasks(response.data.tasks);
+        setRole(response.data.role);
       } catch (error) {
         console.log(error);
       }
     };
 
     getTasks();
-  }, [statusFilter, assignedUserFilter, projectFilter]);
+  }, [statusFilter, projectFilter]);
 
   const DeleteTask = async (id) => {
     try {
@@ -159,7 +161,7 @@ const page = () => {
                           </div>
                         </div>
 
-                        <div className="ms-auto">
+                        {/* <div className="ms-auto">
                           <div>
                             <select
                               name="assignedTo"
@@ -177,7 +179,7 @@ const page = () => {
                               ))}
                             </select>
                           </div>
-                        </div>
+                        </div> */}
                       </div>
                       <div className="table-responsive mt-4">
                         <table className="table mb-0 text-nowrap varient-table align-middle fs-3">
@@ -205,12 +207,14 @@ const page = () => {
                               <th scope="col" className="px-0 text-muted">
                                 Created At
                               </th>
-                              <th
-                                scope="col"
-                                className="px-0 text-muted text-center"
-                              >
-                                Action
-                              </th>
+                              {/* {role === "admin" && (
+                                <th
+                                  scope="col"
+                                  className="px-0 text-muted text-center"
+                                >
+                                  Action
+                                </th>
+                              )} */}
                             </tr>
                           </thead>
                           <tbody>
@@ -242,34 +246,36 @@ const page = () => {
                                 <td className="px-0">
                                   {new Date(ta.created_at).toLocaleDateString()}
                                 </td>
-                                <td className="px-0">
-                                  <div className="ms-auto mt-3 mt-md-0 text-center">
-                                    <button
-                                      type="button"
-                                      className="btn btn-warning"
-                                      onClick={() => {
-                                        setOpen(true);
-                                        setTaskId(ta.id);
-                                      }}
-                                    >
-                                      Edit Task
-                                    </button>
-                                    &nbsp;
-                                    <button
-                                      type="button"
-                                      className="btn btn-danger"
-                                      data-bs-toggle="modal"
-                                      onClick={() => DeleteTask(ta.id)}
-                                    >
-                                      Delete Task
-                                    </button>
-                                  </div>
-                                  <EditTasK
-                                    taskId={taskId}
-                                    isOpen={open}
-                                    onClose={() => setOpen(false)}
-                                  />
-                                </td>
+                                {/* {role === "admin" && (
+                                  <td className="px-0">
+                                    <div className="ms-auto mt-3 mt-md-0 text-center">
+                                      <button
+                                        type="button"
+                                        className="btn btn-warning"
+                                        onClick={() => {
+                                          setOpen(true);
+                                          setTaskId(ta.id);
+                                        }}
+                                      >
+                                        Edit Task
+                                      </button>
+                                      &nbsp;
+                                      <button
+                                        type="button"
+                                        className="btn btn-danger"
+                                        data-bs-toggle="modal"
+                                        onClick={() => DeleteTask(ta.id)}
+                                      >
+                                        Delete Task
+                                      </button>
+                                    </div>
+                                    <EditTasK
+                                      taskId={taskId}
+                                      isOpen={open}
+                                      onClose={() => setOpen(false)}
+                                    />
+                                  </td>
+                                )} */}
                               </tr>
                             ))}
                           </tbody>

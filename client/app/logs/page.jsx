@@ -23,7 +23,7 @@ const page = () => {
         const response = await api.get("/tasks/logs");
         setLogs(response.data);
 
-        console.log(response)
+        console.log(response);
       } catch (error) {
         console.log(error);
       }
@@ -70,7 +70,7 @@ const page = () => {
                     <div className="card-body">
                       <div className="d-md-flex align-items-center">
                         <div>
-                          <h4 className="card-title">Tasks</h4>
+                          <h4 className="card-title">Activity Logs</h4>
                           <p className="card-subtitle">
                             Ample Admin Vs Pixel Admin
                           </p>

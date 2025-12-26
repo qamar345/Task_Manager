@@ -52,19 +52,56 @@ const createTask = async (req, res) => {
 
 // Get Tasks by Project with filters
 const getTasks = async (req, res) => {
-  const { projectId, status, assignedTo } = req.query;
-  //   const userId = req.user.userId;
+  const { projectId, status } = req.query;
+  const userId = req.user.userId;
 
   try {
+    const member = await WorkspaceMember.findOne({
+      where: { user_id: userId },
+    });
+    if (!member) return res.status(403).json({ message: "Access denied" });
+
     const tasks = await Task.findAll({
       where: {
         project_id: projectId, // DB column
         ...(status && { status }),
-        ...(assignedTo && { assigned_to: assignedTo }), // map variable to DB column
+        ...(userId && { assigned_to: userId }), // map variable to DB column
       },
     });
 
-    res.json(tasks);
+    res.json({ tasks: tasks, role: member.role });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getAdminTasks = async (req, res) => {
+  const { workspaceId } = req.params;
+  const userId = req.user.userId;
+
+  try {
+    const member = await WorkspaceMember.findOne({
+      where: {
+        workspace_id: workspaceId,
+        user_id: userId,
+        role: "admin", // only admin allowed
+      },
+    });
+    if (!member) return res.status(403).json({ message: "Access denied" });
+
+    const projects = await Project.findAll({
+      where: { workspace_id: workspaceId },
+    });
+
+    const projectIds = projects.map((p) => p.id);
+
+    const tasks = await Task.findAll({
+      where: { project_id: projectIds },
+      order: [["created_at", "DESC"]],
+    });
+
+    res.json({ tasks });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -114,15 +151,7 @@ const deleteTask = async (req, res) => {
 
   const task = await Task.findByPk(id);
   if (!task) return res.status(404).json({ message: "Task not found" });
-
   await task.destroy();
-
-  // Log delete
-  await ActivityLog.create({
-    taskId: id,
-    userId,
-    action: "Task deleted",
-  });
 
   res.json({ message: "Task deleted" });
 };
@@ -170,4 +199,5 @@ module.exports = {
   getTaskLogs,
   GetTasksUser,
   getSingleTask,
+  getAdminTasks,
 };

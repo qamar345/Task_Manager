@@ -15,15 +15,18 @@ const TaskModal = ({ pId, wId }) => {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const response = await api.get("/auth/users");
+        const response = await api.get(`/workspaces/get-members/${wId}`);
         setUsers(response.data);
+        console.log(response);
       } catch (error) {
         console.log(error);
       }
     };
 
-    getUsers();
-  }, []);
+    if (wId !== null) {
+      getUsers();
+    }
+  }, [wId]);
 
   const CreateTask = async (e) => {
     e.preventDefault();
@@ -137,8 +140,8 @@ const TaskModal = ({ pId, wId }) => {
                     className="form-control"
                   >
                     {users.map((u) => (
-                      <option key={u.id} value={u.id}>
-                        {u.name}
+                      <option key={u.User.id} value={u.User.id}>
+                        {u.User.name}
                       </option>
                     ))}
                   </select>

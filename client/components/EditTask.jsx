@@ -6,7 +6,6 @@ import api from "@/utils/api";
 export default function EditTask({ isOpen, onClose, taskId }) {
   if (!isOpen) return null;
 
-  console.log(isOpen, taskId);
 
   const [values, setValues] = useState({});
   const [loader, setLoader] = useState(false);

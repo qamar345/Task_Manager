@@ -1,34 +1,63 @@
 "use client";
-
 import { Navbar } from "@/components/Navbar";
+import ProjectModal from "@/components/ProjectModal";
 import Siderbar from "@/components/Siderbar";
+import WorkspaceModal from "@/components/WorkspaceModal";
 import api from "@/utils/api";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { useWorkspace } from "@/context/WorkspaceContext";
+import { useRouter } from "next/navigation";
+import AddMember from "@/components/AddMember";
 
 const page = () => {
-  const [logs, setLogs] = useState([]);
-  const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+  const [open, setOpen] = useState(false);
+  const [workspaces, setWorkSpaces] = useState([]);
+  const [loader, setLoader] = useState(false);
+  const [selectedWorkspace, setSelectedWorkspace] = useState(null);
+  const { setWorkspaceId } = useWorkspace();
+  const [wsId, setWsId] = useState(null);
   const router = useRouter();
+  const userId =
+    typeof window !== "undefined" ? sessionStorage.getItem("userId") : null;
+
+  const token =
+    typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
 
   useEffect(() => {
     if (!token) {
       router.push("/");
     }
-  })
+  });
+
+  const handleViewProjects = (id) => {
+    setWorkspaceId(id); // context me workspaceId save
+    router.push("/projects"); // Project page open
+  };
+
+  const handleViewAdminTasks = (id) => {
+    setWorkspaceId(id); // context me workspaceId save
+    router.push("/admin-tasks"); // Project page open
+  };
 
   useEffect(() => {
-    const GetLogs = async () => {
+    const getWorkSpace = async () => {
+      setLoader(true);
       try {
-        const response = await api.get("/tasks/logs");
-        setLogs(response.data);
+        const response = await api.get("/workspaces");
+        setWorkSpaces(response.data);
+       
+        setLoader(false);
       } catch (error) {
         console.log(error);
+
+        setLoader(false);
       }
     };
 
-    GetLogs();
+    getWorkSpace();
   }, []);
+
   return (
     <>
       {/* <!--  Body Wrapper --> */}
@@ -68,67 +97,127 @@ const page = () => {
                     <div className="card-body">
                       <div className="d-md-flex align-items-center">
                         <div>
-                          <h4 className="card-title"> Task Logs</h4>
-                          <p className="card-subtitle">
+                          <h4 className="card-title">My Workspaces</h4>
+                          {/* <p className="card-subtitle">
                             Ample Admin Vs Pixel Admin
-                          </p>
+                          </p> */}
                         </div>
                         <div className="ms-auto mt-3 mt-md-0">
-                          <select
-                            className="form-select theme-select border-0"
-                            aria-label="Default select example"
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#exampleModal"
                           >
-                            <option value="1">Pending</option>
-                            <option value="2">In Progress</option>
-                            <option value="3">Completed</option>
-                          </select>
+                            Create Workspace
+                          </button>
                         </div>
+                        <WorkspaceModal />
                       </div>
+                      {loader && <p>Loading Workspaces...</p>}
                       <div className="table-responsive mt-4">
                         <table className="table mb-0 text-nowrap varient-table align-middle fs-3">
                           <thead>
                             <tr>
                               <th scope="col" className="px-0 text-muted">
-                                User
+                                Workspace Name
                               </th>
                               <th scope="col" className="px-0 text-muted">
-                                Task Title
+                                Created At
                               </th>
-                              <th scope="col" className="px-0 text-muted">
-                                Action
-                              </th>
+
                               <th
                                 scope="col"
-                                className="px-0 text-muted text-end"
+                                className="px-0 text-muted text-center"
                               >
-                                Created At
+                                Action
                               </th>
                             </tr>
                           </thead>
+
                           <tbody>
-                            {logs.map((log) => (
-                              <tr key={log.id}>
+                            {workspaces.map((rs) => (
+                              <tr key={rs.id}>
                                 <td className="px-0">
                                   <div className="d-flex align-items-center">
-                                    <img
-                                      src="assets/images/profile/user-3.jpg"
-                                      className="rounded-circle"
-                                      width="40"
-                                      alt="flexy"
-                                    />
                                     <div className="ms-3">
                                       <h6 className="mb-0 fw-bolder">
-                                        {/* {log.Task.User.name} */}
+                                        {rs.name}
                                       </h6>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="px-0">{log.Task.title}</td>
-                                <td className="px-0">{log.action}</td>
-                                <td className="px-0 text-dark fw-medium text-end">
-                                  {new Date(
-                                    log.created_at
-                                  ).toLocaleDateString()}
+                                <td className="px-0">
+                                  {new Date(rs.created_at).toLocaleDateString()}
+                                </td>
+                                <td className="px-0">
+                                  <div className="ms-auto mt-3 mt-md-0 text-center">
+                                    {userId == rs.created_by && (
+                                      <>
+                                        <button
+                                          type="button"
+                                          className="btn btn-success"
+                                          // data-bs-target="#projectModal"
+                                          onClick={() => {
+                                            setWsId(rs.id);
+                                            setOpen(true);
+                                          }}
+                                        >
+                                          Add Members
+                                        </button>
+                                        &nbsp;
+                                        <button
+                                          type="button"
+                                          className="btn btn-warning"
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#projectModal"
+                                          onClick={() =>
+                                            setSelectedWorkspace(rs.id)
+                                          }
+                                        >
+                                          Create Project
+                                        </button>
+                                        &nbsp;
+                                        <button
+                                          onClick={() =>
+                                            handleViewAdminTasks(rs.id)
+                                          }
+                                          className="btn btn-secondary"
+                                        >
+                                          View Tasks
+                                        </button>
+                                      </>
+                                    )}
+                                    {/* &nbsp;
+                                    {userId == rs.created_by && (
+                                      <button
+                                        type="button"
+                                        className="btn btn-warning"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#projectModal"
+                                        onClick={() =>
+                                          setSelectedWorkspace(rs.id)
+                                        }
+                                      >
+                                        Create Project
+                                      </button>
+                                    )} */}
+                                    &nbsp;
+                                    <button
+                                      onClick={() => handleViewProjects(rs.id)}
+                                      className="btn btn-info"
+                                    >
+                                      View Projects
+                                    </button>
+                                  </div>
+                                  <AddMember
+                                    isOpen={open}
+                                    onClose={() => setOpen(false)}
+                                    workspaceId={wsId}
+                                  />
+                                  <ProjectModal
+                                    workspaceId={selectedWorkspace}
+                                  />
                                 </td>
                               </tr>
                             ))}

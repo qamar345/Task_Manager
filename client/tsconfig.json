@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/workspaces/page.jsx", "app/projects/[id]/page.jsx", "app/projects/page.jsx", "components/TaskModal.jsx", "components/TaskViewModal.jsx", "app/tasks/page.jsx", "components/EditTaskModal.jsx", "app/logs/page.jsx", "app/dashboard/page.jsx", "components/Navbar.jsx"  ],
+, "app/dashboard/page.jsx", "app/projects/[id]/page.jsx", "app/projects/page.jsx", "components/TaskModal.jsx", "components/TaskViewModal.jsx", "app/tasks/page.jsx", "components/EditTaskModal.jsx", "app/logs/page.jsx", "app/dashboard/page.jsx", "components/Navbar.jsx", "app/admin-tasks/page.jsx"  ],
   "exclude": ["node_modules"]
 }

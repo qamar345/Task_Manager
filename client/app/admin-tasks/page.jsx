@@ -1,22 +1,22 @@
 "use client";
 import { Navbar } from "@/components/Navbar";
-import ProjectModal from "@/components/ProjectModal";
 import Siderbar from "@/components/Siderbar";
-import WorkspaceModal from "@/components/WorkspaceModal";
 import api from "@/utils/api";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { useWorkspace } from "@/context/WorkspaceContext";
 import { useRouter } from "next/navigation";
-const page = () => {
-  const [workspaces, setWorkSpaces] = useState([]);
-  const [loader, setLoader] = useState(false);
-  const [selectedWorkspace, setSelectedWorkspace] = useState(null);
-  const { setWorkspaceId } = useWorkspace();
-  const router = useRouter();
+import React, { useEffect, useEffectEvent, useState } from "react";
+import EditTasK from "@/components/EditTask";
+import { useWorkspace } from "@/context/WorkspaceContext";
 
+const page = () => {
+  const { workspaceId } = useWorkspace();
+  const [open, setOpen] = useState(false);
+  const [role, setRole] = useState(null);
+
+  const [tasks, setTasks] = useState([]);
+  const [taskId, setTaskId] = useState(null);
   const token =
     typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+  const router = useRouter();
 
   useEffect(() => {
     if (!token) {
@@ -24,27 +24,34 @@ const page = () => {
     }
   });
 
-  const handleViewProjects = (id) => {
-    setWorkspaceId(id); // context me workspaceId save
-    router.push("/projects"); // Project page open
-  };
-
   useEffect(() => {
-    const getWorkSpace = async () => {
-      setLoader(true);
+    const getTasks = async () => {
       try {
-        const response = await api.get("/workspaces");
-        setWorkSpaces(response.data);
-        setLoader(false);
+        const response = await api.get(`/tasks/admin-tasks/${workspaceId}`);
+        setTasks(response.data.tasks);
+        setRole(response.data.role);
       } catch (error) {
         console.log(error);
-
-        setLoader(false);
       }
     };
 
-    getWorkSpace();
+    getTasks();
   }, []);
+
+  const DeleteTask = async (id) => {
+    try {
+      const response = await api.delete(`/tasks/${id}`);
+      alert(response.data.message);
+    } catch (error) {
+      console.log(error);
+      alert("Failed to delete task.");
+    }
+  };
+
+  // const submitHandler = (id) => {
+  //   setTaskId(id);
+  //   setOpen(false);
+  // };
 
   return (
     <>
@@ -85,31 +92,33 @@ const page = () => {
                     <div className="card-body">
                       <div className="d-md-flex align-items-center">
                         <div>
-                          <h4 className="card-title">Workspaces</h4>
-                          <p className="card-subtitle">
-                            Ample Admin Vs Pixel Admin
-                          </p>
+                          <h4 className="card-title">Workspace Tasks</h4>
+                        
                         </div>
-                        <div className="ms-auto mt-3 mt-md-0">
-                          <button
-                            type="button"
-                            className="btn btn-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#exampleModal"
-                          >
-                            Create Workspace
-                          </button>
-                        </div>
-                        <WorkspaceModal />
                       </div>
-                      {loader && <p>Loading Workspaces...</p>}
                       <div className="table-responsive mt-4">
                         <table className="table mb-0 text-nowrap varient-table align-middle fs-3">
                           <thead>
                             <tr>
                               <th scope="col" className="px-0 text-muted">
-                                Workspace Name
+                                Task Name
                               </th>
+                              <th scope="col" className="px-0 text-muted">
+                                Details
+                              </th>
+
+                              <th scope="col" className="px-0 text-muted">
+                                Status
+                              </th>
+
+                              <th scope="col" className="px-0 text-muted">
+                                Priority
+                              </th>
+
+                              <th scope="col" className="px-0 text-muted">
+                                Due Date
+                              </th>
+
                               <th scope="col" className="px-0 text-muted">
                                 Created At
                               </th>
@@ -122,45 +131,62 @@ const page = () => {
                               </th>
                             </tr>
                           </thead>
-
                           <tbody>
-                            {workspaces.map((rs) => (
-                              <tr key={rs.id}>
+                            {tasks.map((ta) => (
+                              <tr key={ta.id}>
                                 <td className="px-0">
                                   <div className="d-flex align-items-center">
                                     <div className="ms-3">
                                       <h6 className="mb-0 fw-bolder">
-                                        {rs.name}
+                                        {ta.title}
                                       </h6>
                                     </div>
                                   </div>
                                 </td>
+                                <td className="px-0">{ta.description}</td>
                                 <td className="px-0">
-                                  {new Date(rs.created_at).toLocaleDateString()}
+                                  <span className="badge text-bg-primary">
+                                    {ta.status}
+                                  </span>
                                 </td>
+                                <td className="px-0">
+                                  <span className="badge text-bg-primary">
+                                    {ta.priority}
+                                  </span>
+                                </td>
+                                <td className="px-0">
+                                  {new Date(ta.due_date).toLocaleDateString()}
+                                </td>
+                                <td className="px-0">
+                                  {new Date(ta.created_at).toLocaleDateString()}
+                                </td>
+
                                 <td className="px-0">
                                   <div className="ms-auto mt-3 mt-md-0 text-center">
                                     <button
                                       type="button"
                                       className="btn btn-warning"
-                                      data-bs-toggle="modal"
-                                      data-bs-target="#projectModal"
-                                      onClick={() =>
-                                        setSelectedWorkspace(rs.id)
-                                      }
+                                      onClick={() => {
+                                        setOpen(true);
+                                        setTaskId(ta.id);
+                                      }}
                                     >
-                                      Create Project
+                                      Edit Task
                                     </button>
                                     &nbsp;
                                     <button
-                                      onClick={() => handleViewProjects(rs.id)}
-                                      className="btn btn-info"
+                                      type="button"
+                                      className="btn btn-danger"
+                                      data-bs-toggle="modal"
+                                      onClick={() => DeleteTask(ta.id)}
                                     >
-                                      View Projects
+                                      Delete Task
                                     </button>
                                   </div>
-                                  <ProjectModal
-                                    workspaceId={selectedWorkspace}
+                                  <EditTasK
+                                    taskId={taskId}
+                                    isOpen={open}
+                                    onClose={() => setOpen(false)}
                                   />
                                 </td>
                               </tr>
